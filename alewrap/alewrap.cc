@@ -53,6 +53,15 @@ double ale_act(ALEInterface *ale, int action) {
   return ale->act(static_cast<ale::Action>(action));
 }
 
+void ale_act(ALEInterface *ale, int actionA, int ActionB, double* rewardA, double* rewardB){
+assert(actionA >= static_cast<int>(ale::PLAYER_A_NOOP) &&
+         action <= static_cast<int>(ale::PLAYER_A_DOWNLEFTFIRE));
+assert(actionB >= static_cast<int>(ale::PLAYER_B_NOOP) &&
+         action <= static_cast<int>(ale::PLAYER_B_DOWNLEFTFIRE));
+  ale->act(static_cast<ale::Action>(actionA),static_cast<ale::Action>(actionB),rewardA, rewardB);
+
+}
+
 int ale_getScreenWidth(const ALEInterface *ale) {
   return ale->getScreen().width();
 }
@@ -100,8 +109,15 @@ void ale_legalActions(ALEInterface *ale, int *actions,
   assert(actions_size == legal_actions.size());
   std::copy(legal_actions.begin(), legal_actions.end(), actions);
 }
+void ale_legalActionsB(ALEInterface *ale, int *actions,
+                      size_t actions_size) {
+  const std::vector<enum ale::Action>& legal_actions = ale->getMinimalActionSetB();
+  assert(actions_size == legal_actions.size());
+  std::copy(legal_actions.begin(), legal_actions.end(), actions);
+}
 
 int ale_livesRemained(const ALEInterface *ale) { return ale->lives(); }
+int ale_livesRemainedB(const ALEInterface *ale) { return ale->livesB(); }
 
 int ale_getSnapshotLength(const ALEInterface *ale) {
   return static_cast<int>(ale->getSnapshot().size());

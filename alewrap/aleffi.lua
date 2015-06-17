@@ -53,8 +53,9 @@ mt.loadState = lib.ale_loadState
 mt.saveState = lib.ale_saveState
 mt.numActions = lib.ale_numLegalActions
 mt.actions = lib.ale_legalActions
+mt.actionsB = lib.ale_legalActionsB
 mt.lives = lib.ale_livesRemained
-
+mt.livesB = lib.ale_livesRemainedB
 mt.restoreSnapshot = function(self, snapshot)
     lib.ale_restoreSnapshot(self, snapshot, #snapshot)
 end
