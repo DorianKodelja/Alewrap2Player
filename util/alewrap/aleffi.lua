@@ -43,6 +43,7 @@ local lib = ffi.load(package.searchpath('libalewrap',package.cpath))
 local mt = {}
 mt.__index = mt
 mt.act = lib.ale_act
+mt.act2 = lib.ale_act2
 mt.getScreenWidth = lib.ale_getScreenWidth
 mt.getScreenHeight = lib.ale_getScreenHeight
 mt.fillObs = lib.ale_fillObs
@@ -53,8 +54,9 @@ mt.loadState = lib.ale_loadState
 mt.saveState = lib.ale_saveState
 mt.numActions = lib.ale_numLegalActions
 mt.actions = lib.ale_legalActions
+mt.actionsB = lib.ale_legalActionsB
 mt.lives = lib.ale_livesRemained
-
+mt.livesB = lib.ale_livesRemainedB
 mt.restoreSnapshot = function(self, snapshot)
     lib.ale_restoreSnapshot(self, snapshot, #snapshot)
 end

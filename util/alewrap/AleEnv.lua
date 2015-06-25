@@ -101,6 +101,26 @@ function Env:envStep(actions)
     return reward, self:_generateObservations()
 end
 
+function Env:envStep2(actions)
+    assert(#actions == 2, "two actions are expected")
+    assert(actions[1]:nElement() == 1, " discretes actions are expected")
+    assert(actions[2]:nElement() == 1, " discretes actions are expected")
+    
+    
+    if self.ale:isGameOver() then
+        self.ale:resetGame()
+        -- The first screen of the game will be also
+        -- provided as the observation.
+        return self.config.gameOverReward,self.config.gameOverReward, self:_generateObservations()
+    end
+	
+    local rewardA 
+    local rewardB 
+    self.ale:act2(actions[1][1],actions[2][1],rewardA,rewardB)
+    return rewardA,rewardB, self:_generateObservations()
+end
+
+
 function Env:getRgbFromPalette(obs)
     return alewrap.getRgbFromPalette(obs)
 end
@@ -155,10 +175,19 @@ function Env:actions()
     self.ale:actions(torch.data(actions), actions:nElement())
     return actions
 end
-
+function Env:actionsB()
+    local nactions = self.ale:numActions()
+    local actions = torch.IntTensor(nactions)
+    self.ale:actionsB(torch.data(actions), actions:nElement())
+    return actions
+end
 function Env:lives()
     return self.ale:lives()
 end
+function Env:livesB()
+    return self.ale:livesB()
+end
+
 
 function Env:saveSnapshot()
     return self.ale:saveSnapshot()

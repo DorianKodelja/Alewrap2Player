@@ -33,7 +33,7 @@ void ale_gc(ALEInterface *ale);
 double ale_act(ALEInterface *ale, int action);
 
 // Applies the action and returns the obtained reward. ====> 2 players adaptation
-void ale_act(ALEInterface *ale, int actionA, int actionB, double* rewardA, double* rewardB);
+void ale_act2(ALEInterface *ale, int actionA, int actionB, double* rewardA, double* rewardB);
 
 // Returns the screen width.
 int ale_getScreenWidth(const ALEInterface *ale);
@@ -72,6 +72,8 @@ int ale_numLegalActions(ALEInterface *ale);
 
 // Returns the valid actions for a game
 void ale_legalActions(ALEInterface *ale, int *actions, size_t size);
+// Returns the valid actions for  player 2
+void ale_legalActionsB(ALEInterface *ale, int *actions, size_t size);
 
 // Returns the number of remaining lives for a game
 int ale_livesRemained(const ALEInterface *ale);

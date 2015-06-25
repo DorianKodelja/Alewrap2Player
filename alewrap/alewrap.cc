@@ -53,7 +53,7 @@ double ale_act(ALEInterface *ale, int action) {
   return ale->act(static_cast<ale::Action>(action));
 }
 
-void ale_act(ALEInterface *ale, int actionA, int ActionB, double* rewardA, double* rewardB){
+void ale_act2(ALEInterface *ale, int actionA, int ActionB, double* rewardA, double* rewardB){
 assert(actionA >= static_cast<int>(ale::PLAYER_A_NOOP) &&
          action <= static_cast<int>(ale::PLAYER_A_DOWNLEFTFIRE));
 assert(actionB >= static_cast<int>(ale::PLAYER_B_NOOP) &&

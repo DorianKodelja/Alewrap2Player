@@ -99,6 +99,9 @@ function game:lives()
     return self.env:lives()
 end
 
+function game:livesB()
+    return self.env:livesB()
+end
 
 --[[
 Parameters:
@@ -132,6 +135,31 @@ function game:play(action)
 
     return {reward=reward, data=data, pixels=pixels, ram=ram,
             terminal=is_game_over, gray=gray, lives=self:lives()}
+end
+
+function game:play2(actionA,actionB)
+    actionA = actionA or 0
+    actionB = actionB or 0
+    self.action[1][1] = actionA
+    self.action[2][1] = actionA
+
+    -- take the step in the environment
+    local rewardA,rewardB, observations = self.env:envStep2(self.action)
+    local is_game_over = self.game_over(reward)
+
+    local pixels = observations[1]
+    local ram = observations[2]
+    local data = pixels
+    local gray = pixels
+
+    if self.useRGB then
+        data = self.env:getRgbFromPalette(pixels)
+        pixels = data
+    end
+    livesA=self:lives()
+    livesB=self:livesB()
+    return {rewardA=rewardA, rewardB=rewardB, data=data, pixels=pixels, ram=ram,
+            terminal=is_game_over, gray=gray, livesA,livesB}
 end
 
 
