@@ -16,7 +16,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ]]
 
 
-function alewrap.createEnv(romName, extraConfig)
+function alewrap.createEnv(romName, extraConfig)   
     return alewrap.AleEnv(romName, extraConfig)
 end
 
@@ -42,6 +42,7 @@ end
 
 local Env = torch.class('alewrap.AleEnv')
 function Env:__init(romPath, extraConfig)
+  
     self.config = {
         -- An additional reward signal can be provided
         -- after the end of one game.
@@ -54,9 +55,12 @@ function Env:__init(romPath, extraConfig)
         enableRamObs=false,
     }
     updateDefaults(self.config, extraConfig)
-
     self.win = nil
+--bug
+
     self.ale = alewrap.newAle(romPath)
+--bug
+
     local width = self.ale:getScreenWidth()
     local height = self.ale:getScreenHeight()
     local obsShapes = {{height, width}}
@@ -101,11 +105,12 @@ function Env:envStep(actions)
     return reward, self:_generateObservations()
 end
 
-function Env:envStep2(actions)
-    assert(#actions == 2, "two actions are expected")
-    assert(actions[1]:nElement() == 1, " discretes actions are expected")
-    assert(actions[2]:nElement() == 1, " discretes actions are expected")
+function Env:envStep2(actionA,actionB)
     
+    assert(#actionA == 1, "two actions are expected")
+    assert(#actionB == 1, "two actions are expected")
+    assert(actionA[1]:nElement() == 1, " discretes actions are expected")
+    assert(actionB[1]:nElement() == 1, " discretes actions are expected")
     
     if self.ale:isGameOver() then
         self.ale:resetGame()
@@ -114,9 +119,11 @@ function Env:envStep2(actions)
         return self.config.gameOverReward,self.config.gameOverReward, self:_generateObservations()
     end
 	
-    local rewardA 
-    local rewardB 
-    self.ale:act(actions[1][1],actions[2][1],rewardA,rewardB)
+    local rewardA=0
+    local rewardB=0 
+    self.ale:act2(actionA[1][1],actionB[1][1],rewardA,rewardB)
+    rewardA=self.ale:getRewardA()
+    rewardB=self.ale:getRewardB()
     return rewardA,rewardB, self:_generateObservations()
 end
 

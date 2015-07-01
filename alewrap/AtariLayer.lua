@@ -38,32 +38,42 @@ Where `options` has the following keys:
  * `useRAM`   (bool) - true if you want to use Atari ROM.
 
 ]]
-function game:__init(gamename, options, roms_path)
+function game:__init(gamename, options, roms_path,twoplayer)
+  
     options = options or {}
 
     self.useRGB   = options.useRGB
-    self.useRAM   = options.useRAM
-
+    self.useRAM   = options.useRAM 
     self.name = gamename
     local path_to_game = paths.concat(roms_path, gamename) .. '.bin'
+ 
     local msg, err = pcall(alewrap.createEnv, path_to_game,
                            {enableRamObs = self.useRAM})
+
     if not msg then
         error("Cannot find rom " .. path_to_game)
     end
     self.env = err
     self.observations = self.env:envStart()
     self.action = {torch.Tensor{0}}
-
+    self.actionB = {torch.Tensor{0}}
     self.game_over = function() return self.env.ale:isGameOver() end
-
+ 
     -- setup initial observations by playing a no-action command
     self:saveState()
-    local x = self:play(0)
+    if twoplayer then
+        local x = self:play2(0,20)
+    else
+        local x = self:play(0)
+    end
+    assert(x)
+    for k, v in pairs( x ) do
+        print(k, v)
+    end
     self.observations[1] = x.data
     self:loadState()
+ 
 end
-
 
 function game:stochastic()
     return false
@@ -92,6 +102,10 @@ end
 
 function game:actions()
     return self.env:actions():storage():totable()
+end
+
+function game:actionsB()
+    return self.env:actionsB():storage():totable()
 end
 
 
@@ -132,19 +146,19 @@ function game:play(action)
         data = self.env:getRgbFromPalette(pixels)
         pixels = data
     end
-
-    return {reward=reward, data=data, pixels=pixels, ram=ram,
-            terminal=is_game_over, gray=gray, lives=self:lives()}
+    x={reward=reward, data=data, pixels=pixels, ram=ram,terminal=is_game_over, gray=gray, lives=self:lives()}
+    return x 
 end
 
 function game:play2(actionA,actionB)
     actionA = actionA or 0
     actionB = actionB or 0
     self.action[1][1] = actionA
-    self.action[2][1] = actionA
+    self.actionB[1][1] = actionB
 
     -- take the step in the environment
-    local rewardA,rewardB, observations = self.env:envStep2(self.action)
+    local rewardA,rewardB, observations = self.env:envStep2(self.action,self.actionB)
+
     local is_game_over = self.game_over(reward)
 
     local pixels = observations[1]
@@ -158,8 +172,8 @@ function game:play2(actionA,actionB)
     end
     livesA=self:lives()
     livesB=self:livesB()
-    return {rewardA=rewardA, rewardB=rewardB, data=data, pixels=pixels, ram=ram,
-            terminal=is_game_over, gray=gray, livesA,livesB}
+    x={rewardA=rewardA, rewardB=rewardB, data=data, pixels=pixels, ram=ram,terminal=is_game_over, gray=gray, livesA=livesA,livesB=livesB}
+    return x
 end
 
 
@@ -170,4 +184,5 @@ end
 
 function game:restoreState(state)
     self.env:restoreSnapshot(state)
+
 end

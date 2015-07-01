@@ -43,6 +43,9 @@ local lib = ffi.load(package.searchpath('libalewrap',package.cpath))
 local mt = {}
 mt.__index = mt
 mt.act = lib.ale_act
+mt.act2 = lib.ale_act2
+mt.getRewardA=lib.ale_getRewardA
+mt.getRewardB=lib.ale_getRewardB
 mt.getScreenWidth = lib.ale_getScreenWidth
 mt.getScreenHeight = lib.ale_getScreenHeight
 mt.fillObs = lib.ale_fillObs
@@ -72,10 +75,14 @@ ffi.metatype("ALEInterface", mt)
 
 -- Creates a new ALEInterface instance.
 function alewrap.newAle(romPath)
+
     if not paths.filep(romPath) then
         error(string.format('no such ROM file: %q', romPath))
     end
+
+--bug
     return ffi.gc(lib.ale_new(romPath), lib.ale_gc)
+--bug
 end
 
 -- Converts the palette values to RGB values.

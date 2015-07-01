@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 local gameEnv = torch.class('alewrap.GameEnvironment')
 
 
-function gameEnv:__init(_opt)
+function gameEnv:__init(_opt,twoplayer)
     local _opt = _opt or {}
     -- defaults to emulator speed
     self.game_path      = _opt.game_path or '.'
@@ -29,7 +29,14 @@ function gameEnv:__init(_opt)
     self._actrep        = _opt.actrep or 1
     self._random_starts = _opt.random_starts or 1
     self._screen        = alewrap.GameScreen(_opt.pool_frms, _opt.gpu)
-    self:reset(_opt.env, _opt.env_params, _opt.gpu)
+
+    if twoplayer then
+
+    	self:reset2(_opt.env, _opt.env_params, _opt.gpu)
+
+    else
+    	self:reset(_opt.env, _opt.env_params, _opt.gpu)
+    end	
     return self
 end
 
@@ -62,12 +69,14 @@ function gameEnv:getState()
     return self._state.observation, self._state.reward, self._state.terminal
 end
 function gameEnv:getState2()
+
     -- grab the screen again only if the state has been updated in the meantime
     self._state.observation = self._state.observation or self._screen:grab():clone()
     self._state.observation:copy(self._screen:grab())
 
     -- lives will not be reported externally
-    return self._state.observation, self._state.rewardA,self._state.rewardB, self._state.terminal
+    
+   return self._state.observation, self._state.rewardA,self._state.rewardB, self._state.terminal
 end
 
 
@@ -78,9 +87,8 @@ function gameEnv:reset(_env, _params, _gpu)
     if self.game then
         env = self.game.name
     end
-    env = _env or env or 'ms_pacman'
-
-    self.game       = alewrap.game(env, params, self.game_path)
+    env = _env or env or 'ms_pacman'   
+    self.game       = alewrap.game(env, params, self.game_path,false)
     self._actions   = self:getActions()
     
 
@@ -95,6 +103,7 @@ function gameEnv:reset(_env, _params, _gpu)
     return self
 end
 function gameEnv:reset2(_env, _params, _gpu)
+
     local env
     local params = _params or {useRGB=true}
     -- if no game name given use previous name if available
@@ -102,8 +111,7 @@ function gameEnv:reset2(_env, _params, _gpu)
         env = self.game.name
     end
     env = _env or env or 'ms_pacman'
-
-    self.game       = alewrap.game(env, params, self.game_path)
+    self.game       = alewrap.game(env, params, self.game_path,true)
     self._actions   = self:getActions()
     self._actionsB   = self:getActionsB()
 
@@ -111,9 +119,8 @@ function gameEnv:reset2(_env, _params, _gpu)
     if self.verbose > 0 then
         print('\nPlaying:', self.game.name)
     end
-
     self:_resetState()
-    self:_updateState2(self:_step2(0))
+    self:_updateState2(self:_step2(0,20))
     self:getState2()
     return self
 end
@@ -137,9 +144,10 @@ end
 function gameEnv:_step2(actionA,actionB)
     assert(actionA)
     assert(actionB)
+    
     local x = self.game:play2(actionA,actionB)
     self._screen:paint(x.data)
-    return x.data, x.rewardA,rewardB, x.terminal, x.livesA,x.livesB
+    return x.data, x.rewardA,x.rewardB, x.terminal, x.livesA,x.livesB
 end
 
 
@@ -184,14 +192,14 @@ function gameEnv:step2(actionA,actionB, training)
     local frame, rewardA,rewardB, terminal, livesA,livesB
     for i=1,self._actrep do
         -- Take selected action; ATARI games' actions start with action "0".
-        frame, rewardA,rewardB terminal, livesA,livesB = self:_step2(actionA,actionB)
+        frame, rewardA,rewardB, terminal, livesA,livesB = self:_step2(actionA,actionB)
 
         -- accumulate instantaneous reward
         cumulated_rewardA = cumulated_rewardA + rewardA
         cumulated_rewardB = cumulated_rewardB + rewardB
         -- Loosing a life will trigger a terminal signal in training mode.
         -- We assume that a "life" IS an episode during training, but not during testing
-        if training and livesA and livesB and (livesA < self._state.livesA or livesB <self._state.livesA) then
+        if training and livesA and livesB and (livesA < self._state.livesA or livesB <self._state.livesB) then
             terminal = true
         end
 
@@ -220,14 +228,15 @@ end
 
 
 function gameEnv:newGame2()
-    local obs, rewardA,rewardB terminal
+    local obs, rewardA,rewardB, terminal
+
     terminal = self._state.terminal
     while not terminal do
         obs, rewardA,rewardB, terminal, livesA,livesB = self:_randomStep2()
     end
     self._screen:clear()
     -- take one null action in the new game
-    return self:_updateState(self:_step2(0)):getState2()
+    return self:_updateState(self:_step2(0,20)):getState2()
 end
 
 --[[ Function advances the emulator state until a new (random) game starts and
@@ -250,12 +259,12 @@ function gameEnv:nextRandomGame2(k)
     local obs, rewardA,rewardB, terminal = self:newGame2()
     k = k or torch.random(self._random_starts)
     for i=1,k-1 do
-        obs, rewardA,rewardB, terminal, livesA,livesB = self:_step2(0)
+        obs, rewardA,rewardB, terminal, livesA,livesB = self:_step2(0,20)
         if terminal then
             print(string.format('WARNING: Terminal signal received after %d 0-steps', i))
         end
     end
-    return self:_updateState2(self:_step2(0)):getState2()
+    return self:_updateState2(self:_step2(0,20)):getState2()
 end
 
 --[[ Function returns the number total number of pixels in one frame/observation
@@ -267,7 +276,7 @@ end
 
 
 -- Function returns a table with valid actions in the current game.
-function gameEnv:getActions()
+function gameEnv:getActions()   
     return self.game:actions()
 end
 function gameEnv:getActionsB()

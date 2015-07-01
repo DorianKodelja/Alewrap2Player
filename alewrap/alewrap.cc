@@ -16,12 +16,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
 #include "alewrap.h"
-
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 #include <stdexcept>
 #include <cassert>
 #include <algorithm>
+#include <iostream>
 
-
+double rewardA,rewardB;
 void ale_fillRgbFromPalette(uint8_t *rgb, const uint8_t *obs, size_t rgb_size,
                             size_t obs_size) {
   assert(obs_size >= 0);
@@ -53,15 +56,22 @@ double ale_act(ALEInterface *ale, int action) {
   return ale->act(static_cast<ale::Action>(action));
 }
 
-void ale_act2(ALEInterface *ale, int actionA, int ActionB, double* rewardA, double* rewardB){
+void ale_act2(ALEInterface *ale, int actionA, int actionB, double lrewardA, double lrewardB){
+
 assert(actionA >= static_cast<int>(ale::PLAYER_A_NOOP) &&
          action <= static_cast<int>(ale::PLAYER_A_DOWNLEFTFIRE));
 assert(actionB >= static_cast<int>(ale::PLAYER_B_NOOP) &&
-         action <= static_cast<int>(ale::PLAYER_B_DOWNLEFTFIRE));
-  ale->act(static_cast<ale::Action>(actionA),static_cast<ale::Action>(actionB),rewardA, rewardB);
+         action <= static_cast<int>(ale::PLAYER_B_DOWNLEFTFIRE)); 
+double *pRewardA = &rewardA;
+double *pRewardB = &rewardB;
+
+  ale->act2(static_cast<ale::Action>(actionA),static_cast<ale::Action>(actionB),pRewardA, pRewardB);
+
 
 }
 
+double ale_getRewardA(const ALEInterface *ale){return rewardA;}
+double ale_getRewardB(const ALEInterface *ale){return rewardB;}
 int ale_getScreenWidth(const ALEInterface *ale) {
   return ale->getScreen().width();
 }
