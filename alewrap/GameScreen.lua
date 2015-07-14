@@ -35,10 +35,10 @@ default configuration will return the mean over the last two consecutive frames.
 ]]
 local gameScreen = torch.class('alewrap.GameScreen')
 
-
 -- Create a game screen with an empty frame buffer.
 function gameScreen:__init(_params, _gpu)
     self:reset(_params, _gpu)
+
 end
 
 
@@ -107,6 +107,7 @@ end
 
 -- Adds a frame at the top of the buffer.
 function gameScreen:paint(frame)
+
     assert(frame)
     if not self.frameBuffer then
         --- set up frame buffer

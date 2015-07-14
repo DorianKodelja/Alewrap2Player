@@ -236,7 +236,7 @@ function gameEnv:newGame2()
     end
     self._screen:clear()
     -- take one null action in the new game
-    return self:_updateState(self:_step2(0,20)):getState2()
+    return self:_updateState2(self:_step2(0,20)):getState2()
 end
 
 --[[ Function advances the emulator state until a new (random) game starts and
