@@ -79,10 +79,7 @@ function alewrap.newAle(romPath)
     if not paths.filep(romPath) then
         error(string.format('no such ROM file: %q', romPath))
     end
-
---bug
     return ffi.gc(lib.ale_new(romPath), lib.ale_gc)
---bug
 end
 
 -- Converts the palette values to RGB values.

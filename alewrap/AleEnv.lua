@@ -56,11 +56,7 @@ function Env:__init(romPath, extraConfig)
     }
     updateDefaults(self.config, extraConfig)
     self.win = nil
---bug
-
     self.ale = alewrap.newAle(romPath)
---bug
-
     local width = self.ale:getScreenWidth()
     local height = self.ale:getScreenHeight()
     local obsShapes = {{height, width}}
