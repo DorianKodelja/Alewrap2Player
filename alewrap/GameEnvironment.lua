@@ -49,7 +49,7 @@ function gameEnv:_updateState(frame, reward, terminal, lives)
     return self
 end
 
-function gameEnv:_updateState2(frame, rewardA,rewardB, terminal, livesA,livesB)
+function gameEnv:_updateState2(frame, rewardA,rewardB, terminal, livesA,livesB,sideBouncing,wallBouncing,points,crash,serving)
     self._state.rewardA       = rewardA
     self._state.rewardB       = rewardB
     self._state.terminal      = terminal
@@ -57,6 +57,11 @@ function gameEnv:_updateState2(frame, rewardA,rewardB, terminal, livesA,livesB)
     self._state.livesA        = livesA
     self._state.prev_livesB   = self._state.livesB or livesB
     self._state.livesB        = livesB
+    self._state.sideBouncing  = sideBouncing
+    self._state.wallBouncing  = wallBouncing
+    self._state.points        = points
+    self._state.crash         = crash
+    self._state.serving       = serving
     return self
 end
 
@@ -73,10 +78,9 @@ function gameEnv:getState2()
     -- grab the screen again only if the state has been updated in the meantime
     self._state.observation = self._state.observation or self._screen:grab():clone()
     self._state.observation:copy(self._screen:grab())
-
     -- lives will not be reported externally
     
-   return self._state.observation, self._state.rewardA,self._state.rewardB, self._state.terminal
+   return self._state.observation, self._state.rewardA,self._state.rewardB, self._state.terminal,self._state.sideBouncing,self._state.wallBouncing,self._state.points,self._state.crash,self._state.serving
 end
 
 
@@ -147,7 +151,7 @@ function gameEnv:_step2(actionA,actionB)
     
     local x = self.game:play2(actionA,actionB)
     self._screen:paint(x.data)
-    return x.data, x.rewardA,x.rewardB, x.terminal, x.livesA,x.livesB
+    return x.data, x.rewardA,x.rewardB, x.terminal, x.livesA,x.livesB,x.sideBouncing,x.wallBouncing,x.points,x.crash,x.serving
 end
 
 
@@ -189,11 +193,11 @@ function gameEnv:step2(actionA,actionB, training)
     -- accumulate rewards over actrep action repeats
     local cumulated_rewardA = 0
     local cumulated_rewardB = 0
-    local frame, rewardA,rewardB, terminal, livesA,livesB
+    local frame, rewardA,rewardB, terminal, livesA,livesB,sideBouncing,wallBouncing,points,crash,serving
     for i=1,self._actrep do
         -- Take selected action; ATARI games' actions start with action "0".
-        frame, rewardA,rewardB, terminal, livesA,livesB = self:_step2(actionA,actionB)
-
+        frame, rewardA,rewardB, terminal, livesA,livesB,sideBouncing,wallBouncing,points,crash,serving = self:_step2(actionA,actionB)
+        cumulWallBouncing=wallBouncing or cumulWallBouncing
         -- accumulate instantaneous reward
         cumulated_rewardA = cumulated_rewardA + rewardA
         cumulated_rewardB = cumulated_rewardB + rewardB
@@ -206,7 +210,9 @@ function gameEnv:step2(actionA,actionB, training)
         -- game over, no point to repeat current action
         if terminal then break end
     end
-    self:_updateState2(frame, cumulated_rewardA,cumulated_rewardB, terminal, livesA,livesB)
+    
+    self:_updateState2(frame, cumulated_rewardA,cumulated_rewardB, terminal, livesA,livesB,sideBouncing,cumulWallBouncing,points,crash,serving)
+    cumulWallBouncing=false
     return self:getState2()
 end
 

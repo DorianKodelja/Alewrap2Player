@@ -117,10 +117,17 @@ function Env:envStep2(actionA,actionB)
 	
     local rewardA=0
     local rewardB=0 
-    self.ale:act2(actionA[1][1],actionB[1][1],rewardA,rewardB)
+    self.ale:act2(actionA[1][1],actionB[1][1])
     rewardA=self.ale:getRewardA()
     rewardB=self.ale:getRewardB()
-    return rewardA,rewardB, self:_generateObservations()
+    sideBouncing=self.ale:getSideBouncing()
+    wallBouncing=self.ale:getWallBouncing()
+    
+    crash=self.ale:getCrash()
+    points=self.ale:getPoints()
+    serving=self.ale:getServing()
+
+    return rewardA,rewardB, self:_generateObservations(),sideBouncing,wallBouncing,points,crash,serving
 end
 
 

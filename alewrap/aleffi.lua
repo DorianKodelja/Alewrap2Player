@@ -59,6 +59,11 @@ mt.actions = lib.ale_legalActions
 mt.actionsB = lib.ale_legalActionsB
 mt.lives = lib.ale_livesRemained
 mt.livesB = lib.ale_livesRemainedB
+mt.getSideBouncing = lib.ale_getSideBouncing
+mt.getWallBouncing = lib.ale_getWallBouncing
+mt.getPoints = lib.ale_getPoints
+mt.getCrash = lib.ale_getCrash
+mt.getServing = lib.ale_getServing
 mt.restoreSnapshot = function(self, snapshot)
     lib.ale_restoreSnapshot(self, snapshot, #snapshot)
 end

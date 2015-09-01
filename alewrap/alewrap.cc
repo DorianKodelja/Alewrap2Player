@@ -24,7 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #include <algorithm>
 #include <iostream>
 
-double rewardA,rewardB;
+double rewardA,rewardB,sideBouncing;
+bool wallBouncing,crash,serving;
+int points;
 void ale_fillRgbFromPalette(uint8_t *rgb, const uint8_t *obs, size_t rgb_size,
                             size_t obs_size) {
   assert(obs_size >= 0);
@@ -56,7 +58,7 @@ double ale_act(ALEInterface *ale, int action) {
   return ale->act(static_cast<ale::Action>(action));
 }
 
-void ale_act2(ALEInterface *ale, int actionA, int actionB, double lrewardA, double lrewardB){
+void ale_act2(ALEInterface *ale, int actionA, int actionB){
 
 assert(actionA >= static_cast<int>(ale::PLAYER_A_NOOP) &&
          action <= static_cast<int>(ale::PLAYER_A_DOWNLEFTFIRE));
@@ -64,14 +66,27 @@ assert(actionB >= static_cast<int>(ale::PLAYER_B_NOOP) &&
          action <= static_cast<int>(ale::PLAYER_B_DOWNLEFTFIRE)); 
 double *pRewardA = &rewardA;
 double *pRewardB = &rewardB;
+double *pSideBouncing = &sideBouncing;
+bool *pWallBouncing = &wallBouncing;
+bool *pCrash = &crash;
+bool *pServing= &serving;
+int *pPoints = &points;
 
-  ale->act2(static_cast<ale::Action>(actionA),static_cast<ale::Action>(actionB),pRewardA, pRewardB);
+
+
+  ale->act2(static_cast<ale::Action>(actionA),static_cast<ale::Action>(actionB),pRewardA, pRewardB,pSideBouncing,pWallBouncing,pPoints,pCrash,pServing);
 
 
 }
 
 double ale_getRewardA(const ALEInterface *ale){return rewardA;}
 double ale_getRewardB(const ALEInterface *ale){return rewardB;}
+
+double ale_getSideBouncing(const ALEInterface *ale){return sideBouncing;}
+bool ale_getWallBouncing(const ALEInterface *ale){return wallBouncing;}
+bool ale_getCrash(const ALEInterface *ale){return crash;}
+int ale_getPoints(const ALEInterface *ale){return points;}
+bool ale_getServing(const ALEInterface *ale){return serving;}
 int ale_getScreenWidth(const ALEInterface *ale) {
   return ale->getScreen().width();
 }

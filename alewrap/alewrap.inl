@@ -33,10 +33,19 @@ void ale_gc(ALEInterface *ale);
 double ale_act(ALEInterface *ale, int action);
 
 // Applies the action and returns the obtained reward. ====> 2 players adaptation
-void ale_act2(ALEInterface *ale, int actionA, int actionB, double rewardA, double rewardB);
+void ale_act2(ALEInterface *ale, int actionA, int actionB);
+
 
 double ale_getRewardA(const ALEInterface *ale);
 double ale_getRewardB(const ALEInterface *ale);
+
+//Allow to return some information for testing (number of ball hit or speed of ball, etc)
+double ale_getSideBouncing(const ALEInterface *ale);
+bool ale_getWallBouncing(const ALEInterface *ale);
+bool ale_getCrash(const ALEInterface *ale);
+bool ale_getServing(const ALEInterface *ale);
+int ale_getPoints(const ALEInterface *ale);
+
 // Returns the screen width.
 int ale_getScreenWidth(const ALEInterface *ale);
 

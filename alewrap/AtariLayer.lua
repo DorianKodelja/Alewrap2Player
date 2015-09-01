@@ -68,7 +68,7 @@ function game:__init(gamename, options, roms_path,twoplayer)
     end
     assert(x)
     for k, v in pairs( x ) do
-        print(k, v)
+        --print(k, v)
     end
     self.observations[1] = x.data
     self:loadState()
@@ -157,8 +157,7 @@ function game:play2(actionA,actionB)
     self.actionB[1][1] = actionB
 
     -- take the step in the environment
-    local rewardA,rewardB, observations = self.env:envStep2(self.action,self.actionB)
-
+    local rewardA,rewardB, observations,sideBouncing,wallBouncing,points,crash,serving = self.env:envStep2(self.action,self.actionB)
     local is_game_over = self.game_over(reward)
 
     local pixels = observations[1]
@@ -172,7 +171,7 @@ function game:play2(actionA,actionB)
     end
     livesA=self:lives()
     livesB=self:livesB()
-    x={rewardA=rewardA, rewardB=rewardB, data=data, pixels=pixels, ram=ram,terminal=is_game_over, gray=gray, livesA=livesA,livesB=livesB}
+    x={rewardA=rewardA, rewardB=rewardB, data=data, pixels=pixels, ram=ram,terminal=is_game_over, gray=gray, livesA=livesA,livesB=livesB,sideBouncing=sideBouncing,wallBouncing=wallBouncing,points=points,crash=crash,serving=serving}
     return x
 end
 
