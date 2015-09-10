@@ -35,6 +35,8 @@ ENDIF()
 find_path(XITARI_INCLUDE_DIR xitari/ale_interface.hpp
           HINTS 
           ${TORCH_INSTALL_PREFIX}/include
+          ${TORCH_INSTALL_PREFIX}/src
+          ${TORCH_INSTALL_PREFIX}/src/xitari
           ${CMAKE_INSTALL_PREFIX}/include
           ${CMAKE_INSTALL_PREFIX}/../../../../../include
           ${LUAROCKS_INSTALL_PREFIX}/../../../../../include
@@ -42,14 +44,18 @@ find_path(XITARI_INCLUDE_DIR xitari/ale_interface.hpp
 
 find_path(XITARI_LIBRARY_DIR NAMES xitari libxitari.a
           HINTS 
-          ${TORCH_INSTALL_PREFIX}/lib 
+          ${TORCH_INSTALL_PREFIX}/lib
+          ${TORCH_INSTALL_PREFIX}/src
+          ${TORCH_INSTALL_PREFIX}/src/xitari 
           ${CMAKE_INSTALL_PREFIX}/lib
           ${CMAKE_INSTALL_PREFIX}/../../../../../lib 
           ${LUAROCKS_INSTALL_PREFIX}/../../../../../lib)
 
 find_library(XITARI_LIBRARY NAMES xitari libxitari.a
           HINTS 
-          ${TORCH_INSTALL_PREFIX}/lib 
+          ${TORCH_INSTALL_PREFIX}/lib
+          ${TORCH_INSTALL_PREFIX}/src
+          ${TORCH_INSTALL_PREFIX}/src/xitari 
           ${CMAKE_INSTALL_PREFIX}/lib
           ${CMAKE_INSTALL_PREFIX}/../../../../../lib 
           ${LUAROCKS_INSTALL_PREFIX}/../../../../../lib)
